@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useStore } from '../store';
+import { projectMenus, projectRoots } from '../lib/projects';
 import { MENU_TEMPLATES, templateToItems } from '../data/templates';
-import MenuRow from './MenuRow';
+import EditableLabel from './EditableLabel';
 import Modal from './Modal';
 import SelectedSocketPanel from './SelectedSocketPanel';
 import TipBox from './TipBox';
@@ -14,34 +15,11 @@ export default function MenusPanel() {
   const newMenuFromTemplate = useStore((s) => s.newMenuFromTemplate);
   const duplicateMenu = useStore((s) => s.duplicateMenu);
   const deleteMenu = useStore((s) => s.deleteMenu);
+  const renameMenu = useStore((s) => s.renameMenu);
 
   const [pickerOpen, setPickerOpen] = useState(false);
   const pickerRef = useRef<HTMLDivElement>(null);
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
-
-  const pendingDelete = pendingDeleteId
-    ? menus.find((m) => m.id === pendingDeleteId)
-    : undefined;
-
-  // Count inbound references — wedges in OTHER menus that link to this one
-  const inboundCount = useMemo(() => {
-    if (!pendingDelete) return 0;
-    const ref = `view:radial:${pendingDelete.command}`;
-    let n = 0;
-    for (const m of menus) {
-      if (m.id === pendingDelete.id) continue;
-      for (const it of m.items) {
-        if (it && it.command === ref) n += 1;
-      }
-    }
-    return n;
-  }, [pendingDelete, menus]);
-
-  function confirmDelete() {
-    if (!pendingDeleteId) return;
-    deleteMenu(pendingDeleteId);
-    setPendingDeleteId(null);
-  }
 
   useEffect(() => {
     if (!pickerOpen) return;
@@ -59,6 +37,38 @@ export default function MenusPanel() {
       document.removeEventListener('keydown', onKey);
     };
   }, [pickerOpen]);
+
+  // Build a tree-ordered list: for each project root, then its descendants.
+  const tree = useMemo(() => {
+    const out: { menu: (typeof menus)[number]; depth: number }[] = [];
+    for (const root of projectRoots(menus)) {
+      for (const node of projectMenus(root.id, menus)) {
+        out.push({ menu: node.menu, depth: node.depth });
+      }
+    }
+    return out;
+  }, [menus]);
+
+  const pendingDelete = pendingDeleteId
+    ? menus.find((m) => m.id === pendingDeleteId)
+    : undefined;
+
+  const inboundCount = useMemo(() => {
+    if (!pendingDelete) return 0;
+    const ref = `view:radial:${pendingDelete.command}`;
+    let n = 0;
+    for (const m of menus) {
+      if (m.id === pendingDelete.id) continue;
+      for (const it of m.items) if (it && it.command === ref) n += 1;
+    }
+    return n;
+  }, [pendingDelete, menus]);
+
+  function confirmDelete() {
+    if (!pendingDeleteId) return;
+    deleteMenu(pendingDeleteId);
+    setPendingDeleteId(null);
+  }
 
   return (
     <aside className="w-[320px] shrink-0 bg-bg-2 border-l border-line flex flex-col min-h-0">
@@ -103,7 +113,9 @@ export default function MenusPanel() {
                   className="w-full text-left px-3 py-1.5 hover:bg-bg-3"
                 >
                   <div className="text-[12px] text-ink">{tpl.name}</div>
-                  <div className="text-[10px] text-ink-3 mt-0.5 leading-snug">{tpl.description}</div>
+                  <div className="text-[10px] text-ink-3 mt-0.5 leading-snug">
+                    {tpl.description}
+                  </div>
                 </button>
               ))}
             </div>
@@ -111,17 +123,79 @@ export default function MenusPanel() {
         </div>
       </div>
 
-      <div className="overflow-y-auto px-2 py-2 space-y-1 max-h-[40vh]">
-        {menus.map((m) => (
-          <MenuRow
-            key={m.id}
-            menu={m}
-            active={m.id === activeMenuId}
-            onSelect={() => setActiveMenu(m.id)}
-            onDuplicate={() => duplicateMenu(m.id)}
-            onDelete={() => setPendingDeleteId(m.id)}
-          />
-        ))}
+      <div className="overflow-y-auto px-2 py-2 space-y-0.5 max-h-[40vh]">
+        {tree.length === 0 ? (
+          <div className="text-[12px] text-ink-3 italic px-2 py-3">No menus yet.</div>
+        ) : (
+          tree.map(({ menu, depth }) => {
+            const filled = menu.items.filter((i) => i !== null && i.command).length;
+            const isActive = menu.id === activeMenuId;
+            const isRoot = depth === 0;
+            return (
+              <div
+                key={menu.id}
+                className={`group flex items-center gap-2 px-2 py-1.5 rounded text-[12px] cursor-pointer border ${
+                  isActive
+                    ? 'bg-bg-3 border-accent'
+                    : 'bg-bg-2 border-transparent hover:bg-bg-3'
+                }`}
+                style={{ paddingLeft: 8 + depth * 14 }}
+                onClick={() => setActiveMenu(menu.id, { source: 'direct' })}
+              >
+                {!isRoot && (
+                  <span className="text-ink-3 text-[10px] shrink-0" aria-hidden>
+                    ↳
+                  </span>
+                )}
+                <div className="flex-1 min-w-0">
+                  <EditableLabel
+                    value={menu.name}
+                    onCommit={(next) => renameMenu(menu.id, next)}
+                    className={`block truncate cursor-text ${
+                      isRoot ? 'text-ink font-medium' : 'text-ink'
+                    }`}
+                    inputClassName="bg-bg-3 border border-accent rounded px-1 py-0 outline-none text-[12px] text-ink w-full"
+                    placeholder="Untitled"
+                  />
+                  <div className="text-[10px] text-ink-3 font-mono truncate">
+                    {menu.command}
+                  </div>
+                </div>
+                <span className="font-mono text-[10px] text-ink-2 shrink-0">
+                  {filled}/{menu.items.length}
+                </span>
+                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+                  <span
+                    role="button"
+                    tabIndex={-1}
+                    aria-label="Duplicate menu"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      duplicateMenu(menu.id);
+                    }}
+                    className="w-5 h-5 inline-flex items-center justify-center rounded text-ink-2 hover:text-ink hover:bg-bg-4 cursor-pointer"
+                    title="Duplicate"
+                  >
+                    ⎘
+                  </span>
+                  <span
+                    role="button"
+                    tabIndex={-1}
+                    aria-label="Delete menu"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setPendingDeleteId(menu.id);
+                    }}
+                    className="w-5 h-5 inline-flex items-center justify-center rounded text-ink-2 hover:text-danger hover:bg-bg-4 cursor-pointer"
+                    title="Delete"
+                  >
+                    ✕
+                  </span>
+                </div>
+              </div>
+            );
+          })
+        )}
       </div>
 
       <div className="border-t border-line flex-1 overflow-y-auto min-h-0">

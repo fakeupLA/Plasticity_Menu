@@ -4,6 +4,7 @@ import { toast } from '../lib/toast';
 import type { RadialMenu } from '../types';
 import WheelView from './WheelView';
 import Breadcrumb from './Breadcrumb';
+import EditableLabel from './EditableLabel';
 
 const ACTIVE_MIN = 320;
 const ACTIVE_MAX = 820;
@@ -188,14 +189,16 @@ export default function Stage() {
                     ↑ {hiddenAncestorCount} more
                   </button>
                 )}
-                <button
-                  type="button"
+                <EditableLabel
+                  value={ancestor.name}
+                  onCommit={(next) => renameMenu(ancestor.id, next)}
                   onClick={() => setActiveMenu(ancestor.id, { source: 'breadcrumb' })}
-                  className="text-[10px] uppercase tracking-wider text-ink-2 hover:text-ink px-2 py-1 rounded hover:bg-bg-3 transition-colors"
-                  title={`Jump to ${ancestor.name || 'menu'}`}
-                >
-                  {ancestor.name || 'Untitled'}
-                </button>
+                  className="text-[10px] uppercase tracking-wider text-ink-2 hover:text-ink px-2 py-1 rounded hover:bg-bg-3 transition-colors cursor-pointer"
+                  inputClassName="bg-bg-3 border border-accent rounded px-1 py-0 outline-none text-[10px] uppercase tracking-wider text-ink"
+                  placeholder="Untitled"
+                  title={`Click to jump to ${ancestor.name || 'menu'}, double-click to rename`}
+                />
+
                 <WheelView
                   menu={ancestor}
                   isActive={false}
@@ -207,9 +210,13 @@ export default function Stage() {
           })}
           <div className="flex flex-col items-center gap-1 shrink-0">
             {showChain && (
-              <div className="text-[10px] uppercase tracking-wider text-accent px-2 py-1">
-                {activeMenu.name || 'Submenu'}
-              </div>
+              <EditableLabel
+                value={activeMenu.name}
+                onCommit={(next) => renameMenu(activeMenu.id, next)}
+                className="text-[10px] uppercase tracking-wider text-accent px-2 py-1 cursor-text"
+                inputClassName="bg-bg-3 border border-accent rounded px-1 py-0 outline-none text-[10px] uppercase tracking-wider text-accent"
+                placeholder="Submenu"
+              />
             )}
             <WheelView menu={activeMenu} isActive sizePx={wheelSizes.active} />
           </div>

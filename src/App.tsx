@@ -3,13 +3,9 @@ import TopBar from './components/TopBar';
 import CommandPanel from './components/CommandPanel';
 import Stage from './components/Stage';
 import MenusPanel from './components/MenusPanel';
-import ProjectsPanel from './components/ProjectsPanel';
-import ProjectTabs from './components/ProjectTabs';
 import Toast from './components/Toast';
 import ValidationBanner from './components/ValidationBanner';
 import OnboardingTour from './components/onboarding/OnboardingTour';
-import { FEATURE_FLAGS } from './lib/featureFlags';
-import { useFeatureFlag } from './lib/useFeatureFlag';
 import { useStore } from './store';
 import { downloadMenus, validateForExport } from './lib/export';
 import { toast } from './lib/toast';
@@ -23,8 +19,6 @@ function isEditableTarget(t: EventTarget | null): boolean {
 }
 
 export default function App() {
-  const projectsView = useFeatureFlag(FEATURE_FLAGS.projectsView);
-
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
       const editable = isEditableTarget(e.target);
@@ -80,12 +74,11 @@ export default function App() {
   return (
     <div className="h-screen flex flex-col bg-bg text-ink">
       <TopBar />
-      {projectsView && <ProjectTabs />}
       <ValidationBanner />
       <div className="flex-1 flex min-h-0">
         <CommandPanel />
         <Stage />
-        {projectsView ? <ProjectsPanel /> : <MenusPanel />}
+        <MenusPanel />
       </div>
       <Toast />
       <OnboardingTour />
