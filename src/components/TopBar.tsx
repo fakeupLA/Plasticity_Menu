@@ -6,6 +6,7 @@ import { ONBOARDING_KEYS, getFlag, setFlag } from '../lib/onboarding';
 import JsonModal from './JsonModal';
 import ExportInfoModal from './ExportInfoModal';
 import AboutModal from './AboutModal';
+import HelpModal from './HelpModal';
 
 export default function TopBar() {
   const fileInput = useRef<HTMLInputElement>(null);
@@ -18,6 +19,7 @@ export default function TopBar() {
   const [jsonOpen, setJsonOpen] = useState(false);
   const [exportInfoOpen, setExportInfoOpen] = useState(false);
   const [aboutOpen, setAboutOpen] = useState(false);
+  const [helpOpen, setHelpOpen] = useState(false);
 
   function onImportClick() {
     fileInput.current?.click();
@@ -92,6 +94,14 @@ export default function TopBar() {
           <span className="font-semibold">Fake-Up</span>
           <span className="text-ink-2">: Plasticity Radial Menu Generator</span>
         </span>
+        <button
+          type="button"
+          onClick={() => setAboutOpen(true)}
+          className="ml-2 text-[11px] uppercase tracking-wider text-ink-3 hover:text-ink hover:bg-bg-3 px-2 py-1 rounded border border-transparent hover:border-line"
+          title="About this tool"
+        >
+          About
+        </button>
       </div>
       <div className="flex items-center gap-2">
         <input
@@ -125,10 +135,10 @@ export default function TopBar() {
         <div className="w-px h-5 bg-line mx-1" />
         <button
           type="button"
-          onClick={() => setAboutOpen(true)}
+          onClick={() => setHelpOpen(true)}
           className="w-7 h-7 inline-flex items-center justify-center text-[13px] rounded bg-bg-3 hover:bg-bg-4 border border-line text-ink-2 hover:text-ink"
-          title="About"
-          aria-label="About"
+          title="Help"
+          aria-label="Help"
         >
           ?
         </button>
@@ -167,6 +177,7 @@ export default function TopBar() {
       <JsonModal open={jsonOpen} menu={activeMenu} onClose={() => setJsonOpen(false)} />
       <ExportInfoModal open={exportInfoOpen} onClose={closeExportInfo} />
       <AboutModal open={aboutOpen} onClose={() => setAboutOpen(false)} />
+      <HelpModal open={helpOpen} onClose={() => setHelpOpen(false)} />
     </header>
   );
 }
