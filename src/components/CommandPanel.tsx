@@ -6,6 +6,28 @@ import { toast } from '../lib/toast';
 import CommandItem from './CommandItem';
 import SubmenuTile from './SubmenuTile';
 
+// Section-level icon colors. Related tools share a hue so the rail reads
+// quickly. Sections not listed fall back to ink-2 (default text-muted).
+const SECTION_ICON_COLOR: Record<string, string> = {
+  Submenus: '#ff8557', // accent
+  Primitives: '#7aa2f7', // blue — solids
+  Curves: '#7dcfff', // cyan — sketch
+  Modify: '#9ece6a', // green — edits geometry
+  Boolean: '#bb9af7', // purple — combine
+  Transform: '#e0af68', // amber — move/rotate/scale
+  Freestyle: '#f7768e', // pink — direct manip
+  Selection: '#c0caf5', // muted lavender
+  'Selection Mode': '#c0caf5',
+  Visibility: '#c0caf5',
+  Construction: '#a9b1d6',
+  Material: '#f7a3a3',
+  Measure: '#89ddff',
+  Viewport: '#9d7cd8',
+  General: '#a8a8a8',
+  Export: '#a8a8a8',
+};
+const DEFAULT_ICON_COLOR = '#a8a8a8';
+
 interface CommandRow {
   id: string;
   label: string;
@@ -127,6 +149,7 @@ export default function CommandPanel() {
                     label={item.label}
                     iconName={item.iconName}
                     accent={item.isSubmenu}
+                    iconColor={SECTION_ICON_COLOR[g.section] ?? DEFAULT_ICON_COLOR}
                     editableName={item.isSubmenu ? item.menuName : undefined}
                     onRenameSubmenu={
                       item.isSubmenu && item.menuId

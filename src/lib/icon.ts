@@ -18,9 +18,15 @@ for (const [path, raw] of Object.entries(PLASTICITY_RAW_ICONS)) {
   const name = nameMatch[1];
   const vb = raw.match(/viewBox="([^"]+)"/);
   const inner = raw.match(/<svg[^>]*>([\s\S]*?)<\/svg>/);
+  // Some upstream Plasticity SVGs hard-code fills like #000 / #fff on individual
+  // paths, which override the root fill="currentColor" — strip those so every
+  // path inherits the color we set on the wrapper.
+  const cleanInner = (inner ? inner[1] : '')
+    .replace(/\sfill="[^"]*"/g, '')
+    .replace(/\sstroke="[^"]*"/g, '');
   PLASTICITY_ICONS[name] = {
     viewBox: vb ? vb[1] : '0 0 32 32',
-    inner: inner ? inner[1] : '',
+    inner: cleanInner,
   };
 }
 

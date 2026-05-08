@@ -7,6 +7,7 @@ interface Props {
   iconName: string;
   hint?: string;
   accent?: boolean;
+  iconColor?: string;
   // When provided, the label is split into "↳ <editable> (submenu)" and
   // double-click on the editable name renames the underlying menu instead
   // of inserting the command. Drag still places the link as before.
@@ -23,6 +24,7 @@ export default function CommandItem({
   iconName,
   hint,
   accent,
+  iconColor,
   editableName,
   onRenameSubmenu,
   onDragStart,
@@ -55,6 +57,7 @@ export default function CommandItem({
     >
       <span
         className="shrink-0 w-4 h-4 inline-flex items-center justify-center"
+        style={iconColor ? { color: iconColor } : undefined}
         dangerouslySetInnerHTML={{ __html: miniIconSVG(iconName, 16) }}
       />
       {isRenamable ? (
