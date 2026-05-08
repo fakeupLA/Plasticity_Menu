@@ -6,9 +6,18 @@ import { toast } from '../lib/toast';
 import CommandItem from './CommandItem';
 import SubmenuTile from './SubmenuTile';
 
+interface CommandRow {
+  id: string;
+  label: string;
+  iconName: string;
+  isSubmenu: boolean;
+  menuId?: string;
+  menuName?: string;
+}
+
 interface SectionGroup {
   section: string;
-  items: Array<{ id: string; label: string; iconName: string; isSubmenu: boolean }>;
+  items: CommandRow[];
 }
 
 export default function CommandPanel() {
@@ -18,8 +27,9 @@ export default function CommandPanel() {
   const setSocket = useStore((s) => s.setSocket);
   const menus = useStore((s) => s.menus);
   const activeMenu = useStore(selectActiveMenu);
+  const renameMenu = useStore((s) => s.renameMenu);
 
-  const submenuEntries = useMemo(() => {
+  const submenuEntries = useMemo<CommandRow[]>(() => {
     if (!activeMenu) return [];
     return menus
       .filter((m) => m.id !== activeMenu.id)
@@ -28,6 +38,8 @@ export default function CommandPanel() {
         label: `↳ ${m.name} (submenu)`,
         iconName: 'submenu',
         isSubmenu: true,
+        menuId: m.id,
+        menuName: m.name,
       }));
   }, [menus, activeMenu]);
 
@@ -48,7 +60,12 @@ export default function CommandPanel() {
     for (const cmd of PLASTICITY_COMMANDS as PlasticityCommand[]) {
       if (!matchesQuery(cmd.id, cmd.label)) continue;
       const arr = sections.get(cmd.section) ?? [];
-      arr.push({ id: cmd.id, label: cmd.label, iconName: iconFromCommand(cmd.id), isSubmenu: false });
+      arr.push({
+        id: cmd.id,
+        label: cmd.label,
+        iconName: iconFromCommand(cmd.id),
+        isSubmenu: false,
+      });
       sections.set(cmd.section, arr);
     }
 
@@ -110,6 +127,12 @@ export default function CommandPanel() {
                     label={item.label}
                     iconName={item.iconName}
                     accent={item.isSubmenu}
+                    editableName={item.isSubmenu ? item.menuName : undefined}
+                    onRenameSubmenu={
+                      item.isSubmenu && item.menuId
+                        ? (next) => renameMenu(item.menuId!, next)
+                        : undefined
+                    }
                     onDragStart={handleDragStart}
                     onDragEnd={handleDragEnd}
                     onDoubleClick={handleDoubleClick}
