@@ -5,6 +5,7 @@ import { toast } from '../lib/toast';
 import { ONBOARDING_KEYS, getFlag, requestReplay, setFlag } from '../lib/onboarding';
 import JsonModal from './JsonModal';
 import ExportInfoModal from './ExportInfoModal';
+import AboutModal from './AboutModal';
 
 export default function TopBar() {
   const fileInput = useRef<HTMLInputElement>(null);
@@ -16,6 +17,7 @@ export default function TopBar() {
   const canRedo = useStore((s) => s.redoStack.length > 0);
   const [jsonOpen, setJsonOpen] = useState(false);
   const [exportInfoOpen, setExportInfoOpen] = useState(false);
+  const [aboutOpen, setAboutOpen] = useState(false);
 
   function onImportClick() {
     fileInput.current?.click();
@@ -90,6 +92,14 @@ export default function TopBar() {
           <span className="font-semibold">Fake-Up</span>
           <span className="text-ink-2">: Plasticity Radial Menu Generator</span>
         </span>
+        <button
+          type="button"
+          onClick={() => setAboutOpen(true)}
+          className="ml-2 text-[11px] uppercase tracking-wider text-ink-3 hover:text-ink hover:bg-bg-3 px-2 py-1 rounded border border-transparent hover:border-line"
+          title="About this tool"
+        >
+          About
+        </button>
       </div>
       <div className="flex items-center gap-2">
         <input
@@ -167,6 +177,7 @@ export default function TopBar() {
       </div>
       <JsonModal open={jsonOpen} menu={activeMenu} onClose={() => setJsonOpen(false)} />
       <ExportInfoModal open={exportInfoOpen} onClose={closeExportInfo} />
+      <AboutModal open={aboutOpen} onClose={() => setAboutOpen(false)} />
     </header>
   );
 }
