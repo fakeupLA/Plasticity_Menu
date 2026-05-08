@@ -5,6 +5,7 @@ import Stage from './components/Stage';
 import MenusPanel from './components/MenusPanel';
 import Toast from './components/Toast';
 import ValidationBanner from './components/ValidationBanner';
+import MobileGate from './components/MobileGate';
 import OnboardingTour from './components/onboarding/OnboardingTour';
 import { useStore } from './store';
 import { downloadMenus, validateForExport } from './lib/export';
@@ -82,6 +83,7 @@ export default function App() {
       </div>
       <Toast />
       <OnboardingTour />
+      <MobileGate />
     </div>
   );
 }
