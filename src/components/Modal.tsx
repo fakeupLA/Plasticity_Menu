@@ -43,7 +43,7 @@ export default function Modal({ open, onClose, title, children, width = 560 }: P
             ✕
           </button>
         </div>
-        <div className="flex-1 overflow-auto">{children}</div>
+        <div className="flex-1 min-h-0">{children}</div>
       </div>
     </div>
   );

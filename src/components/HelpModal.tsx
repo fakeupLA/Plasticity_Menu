@@ -62,7 +62,7 @@ export default function HelpModal({ open, onClose }: Props) {
 
   return (
     <Modal open={open} onClose={onClose} title="Help" width={780}>
-      <div className="flex h-[78vh] min-h-0">
+      <div className="flex h-[calc(80vh-40px)] min-h-0">
         <nav className="w-[180px] shrink-0 border-r border-line py-3 px-2 overflow-y-auto">
           {SECTIONS.map((s) => (
             <button
