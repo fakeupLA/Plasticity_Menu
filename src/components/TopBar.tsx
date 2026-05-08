@@ -2,7 +2,7 @@ import { useRef, useState } from 'react';
 import { selectActiveMenu, useStore } from '../store';
 import { downloadMenus, validateForExport } from '../lib/export';
 import { toast } from '../lib/toast';
-import { ONBOARDING_KEYS, getFlag, requestReplay, setFlag } from '../lib/onboarding';
+import { ONBOARDING_KEYS, getFlag, setFlag } from '../lib/onboarding';
 import JsonModal from './JsonModal';
 import ExportInfoModal from './ExportInfoModal';
 import AboutModal from './AboutModal';
@@ -92,14 +92,6 @@ export default function TopBar() {
           <span className="font-semibold">Fake-Up</span>
           <span className="text-ink-2">: Plasticity Radial Menu Generator</span>
         </span>
-        <button
-          type="button"
-          onClick={() => setAboutOpen(true)}
-          className="ml-2 text-[11px] uppercase tracking-wider text-ink-3 hover:text-ink hover:bg-bg-3 px-2 py-1 rounded border border-transparent hover:border-line"
-          title="About this tool"
-        >
-          About
-        </button>
       </div>
       <div className="flex items-center gap-2">
         <input
@@ -133,13 +125,10 @@ export default function TopBar() {
         <div className="w-px h-5 bg-line mx-1" />
         <button
           type="button"
-          onClick={() => {
-            setFlag(ONBOARDING_KEYS.tourSeen, false);
-            requestReplay();
-          }}
+          onClick={() => setAboutOpen(true)}
           className="w-7 h-7 inline-flex items-center justify-center text-[13px] rounded bg-bg-3 hover:bg-bg-4 border border-line text-ink-2 hover:text-ink"
-          title="Replay onboarding tour"
-          aria-label="Replay onboarding tour"
+          title="About"
+          aria-label="About"
         >
           ?
         </button>

@@ -1,4 +1,5 @@
 import Modal from './Modal';
+import { ONBOARDING_KEYS, requestReplay, setFlag } from '../lib/onboarding';
 
 interface Props {
   open: boolean;
@@ -6,6 +7,12 @@ interface Props {
 }
 
 export default function AboutModal({ open, onClose }: Props) {
+  function onReplayTour() {
+    setFlag(ONBOARDING_KEYS.tourSeen, false);
+    onClose();
+    requestReplay();
+  }
+
   return (
     <Modal open={open} onClose={onClose} title="About" width={520}>
       <div className="px-6 pt-6 pb-6 text-[14px] leading-relaxed text-ink space-y-5">
@@ -40,6 +47,19 @@ export default function AboutModal({ open, onClose }: Props) {
           </a>
           .
         </p>
+        <div className="pt-1 border-t border-line/60 mt-1" />
+        <div className="flex items-center justify-between gap-3 -mt-1">
+          <span className="text-[12px] text-ink-3">
+            Want a refresher on how to use the editor?
+          </span>
+          <button
+            type="button"
+            onClick={onReplayTour}
+            className="shrink-0 h-7 px-3 text-[11px] uppercase tracking-wider rounded bg-bg-3 hover:bg-bg-4 border border-line text-ink-2 hover:text-ink"
+          >
+            Replay tour
+          </button>
+        </div>
         <div className="pt-1 text-[12px] text-ink-3">
           Made with <span aria-label="love">❤️</span> in Los Angeles
         </div>
