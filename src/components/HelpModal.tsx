@@ -83,8 +83,8 @@ export default function HelpModal({ open, onClose }: Props) {
         <div ref={scrollRef} className="help-content flex-1 overflow-y-auto px-7 py-6 text-[13px] leading-relaxed text-ink space-y-8">
           <Section id="overview" title="Overview">
             <p>
-              Fake-Up is a visual editor for Plasticity's radial (pie) menus. You
-              arrange wedges in your browser and export <code>.radial.json</code>
+              This tool is a visual editor for Plasticity's radial (pie) menus.
+              You arrange wedges in your browser and export <code>.radial.json</code>
               {' '}files that drop straight into Plasticity. Everything is
               local-first — nothing leaves your browser.
             </p>
