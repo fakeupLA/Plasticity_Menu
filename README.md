@@ -43,11 +43,6 @@ npm run build    # production build into dist/
 
 Your workspace is saved to `localStorage` under `plasticity-radial:v1` and restored on reload. Nothing leaves your browser.
 
-## Credits
-
-- [Plasticity](https://www.plasticity.xyz) — the radial menu format originated there.
-- Inspired by [PepperKUN's radial menu editor](https://github.com/PepperKUN/plasticity-radial-menu-editor).
-
 ## License
 
-MIT
+MIT. Bundled toolbar icons retain their original LGPL-3.0 license — see `NOTICE.md`.
