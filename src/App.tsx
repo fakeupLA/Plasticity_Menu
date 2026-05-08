@@ -4,6 +4,7 @@ import CommandPanel from './components/CommandPanel';
 import Stage from './components/Stage';
 import MenusPanel from './components/MenusPanel';
 import ProjectsPanel from './components/ProjectsPanel';
+import ProjectTabs from './components/ProjectTabs';
 import Toast from './components/Toast';
 import ValidationBanner from './components/ValidationBanner';
 import OnboardingTour from './components/onboarding/OnboardingTour';
@@ -79,6 +80,7 @@ export default function App() {
   return (
     <div className="h-screen flex flex-col bg-bg text-ink">
       <TopBar />
+      {projectsView && <ProjectTabs />}
       <ValidationBanner />
       <div className="flex-1 flex min-h-0">
         <CommandPanel />

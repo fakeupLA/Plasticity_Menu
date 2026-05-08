@@ -1,7 +1,6 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useStore } from '../store';
-import { projectMenus, projectRootIdFor, projectRoots } from '../lib/projects';
-import { MENU_TEMPLATES, templateToItems } from '../data/templates';
+import { projectMenus, projectRootIdFor } from '../lib/projects';
 import Modal from './Modal';
 import SelectedSocketPanel from './SelectedSocketPanel';
 import TipBox from './TipBox';
@@ -10,38 +9,16 @@ export default function ProjectsPanel() {
   const menus = useStore((s) => s.menus);
   const activeMenuId = useStore((s) => s.activeMenuId);
   const setActiveMenu = useStore((s) => s.setActiveMenu);
-  const newMenu = useStore((s) => s.newMenu);
-  const newMenuFromTemplate = useStore((s) => s.newMenuFromTemplate);
   const duplicateMenu = useStore((s) => s.duplicateMenu);
   const deleteMenu = useStore((s) => s.deleteMenu);
 
-  const [pickerOpen, setPickerOpen] = useState(false);
-  const pickerRef = useRef<HTMLDivElement>(null);
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!pickerOpen) return;
-    function onDown(e: MouseEvent) {
-      if (!pickerRef.current) return;
-      if (!pickerRef.current.contains(e.target as Node)) setPickerOpen(false);
-    }
-    function onKey(e: KeyboardEvent) {
-      if (e.key === 'Escape') setPickerOpen(false);
-    }
-    document.addEventListener('mousedown', onDown);
-    document.addEventListener('keydown', onKey);
-    return () => {
-      document.removeEventListener('mousedown', onDown);
-      document.removeEventListener('keydown', onKey);
-    };
-  }, [pickerOpen]);
-
-  const roots = useMemo(() => projectRoots(menus), [menus]);
 
   const activeRootId = useMemo(
     () => projectRootIdFor(activeMenuId, menus),
     [activeMenuId, menus],
   );
+  const activeRoot = menus.find((m) => m.id === activeRootId);
 
   const tree = useMemo(() => projectMenus(activeRootId, menus), [activeRootId, menus]);
 
@@ -68,111 +45,53 @@ export default function ProjectsPanel() {
 
   return (
     <aside className="w-[320px] shrink-0 bg-bg-2 border-l border-line flex flex-col min-h-0">
-      <div className="flex items-center justify-between px-3 py-2 border-b border-line shrink-0">
+      <div className="px-3 py-2 border-b border-line shrink-0">
         <div className="text-[10px] uppercase tracking-wider text-ink-3">
-          Projects <span className="font-mono text-ink-2 ml-1">{roots.length}</span>
+          Project
         </div>
-        <div ref={pickerRef} className="relative flex items-center gap-1">
-          <button
-            type="button"
-            onClick={() => newMenu()}
-            className="h-6 px-2 text-[11px] rounded bg-bg-3 hover:bg-bg-4 border border-line text-ink"
-            title="New empty project"
-          >
-            + New
-          </button>
-          <button
-            type="button"
-            onClick={() => setPickerOpen((v) => !v)}
-            className="h-6 px-1.5 text-[11px] rounded bg-bg-3 hover:bg-bg-4 border border-line text-ink-2 hover:text-ink"
-            aria-label="New from template"
-            title="New from template"
-          >
-            ▾
-          </button>
-          {pickerOpen && (
-            <div className="absolute top-full right-0 mt-1 w-[260px] bg-bg-2 border border-line rounded-md shadow-xl z-30 py-1">
-              <div className="px-3 py-1.5 text-[10px] uppercase tracking-wider text-ink-3 border-b border-line">
-                New from template
-              </div>
-              {MENU_TEMPLATES.map((tpl) => (
-                <button
-                  key={tpl.id}
-                  type="button"
-                  onClick={() => {
-                    newMenuFromTemplate({
-                      name: tpl.name,
-                      command: tpl.command,
-                      items: templateToItems(tpl),
-                    });
-                    setPickerOpen(false);
-                  }}
-                  className="w-full text-left px-3 py-1.5 hover:bg-bg-3"
-                >
-                  <div className="text-[12px] text-ink">{tpl.name}</div>
-                  <div className="text-[10px] text-ink-3 mt-0.5 leading-snug">{tpl.description}</div>
-                </button>
-              ))}
-            </div>
-          )}
+        <div className="text-[13px] text-ink mt-0.5 truncate" title={activeRoot?.command}>
+          {activeRoot?.name || 'Untitled'}
+        </div>
+        <div className="text-[10px] font-mono text-ink-3 truncate">
+          {tree.length} menu{tree.length === 1 ? '' : 's'}
         </div>
       </div>
 
-      {/* Project tabs */}
-      <div className="flex items-center overflow-x-auto border-b border-line shrink-0 scrollbar-thin">
-        {roots.map((root) => {
-          const isActiveProject = root.id === activeRootId;
-          const orphan = !root.items.some((it) => it && it.command);
-          return (
-            <button
-              key={root.id}
-              type="button"
-              onClick={() => setActiveMenu(root.id, { source: 'direct' })}
-              className={`shrink-0 px-3 h-8 text-[12px] border-r border-line transition-colors ${
-                isActiveProject
-                  ? 'bg-bg text-ink border-b-2 border-b-accent'
-                  : 'bg-bg-2 text-ink-2 hover:bg-bg-3 hover:text-ink'
-              }`}
-              title={root.command}
-            >
-              <span className="truncate max-w-[120px] inline-block align-middle">
-                {root.name || 'Untitled'}
-              </span>
-              {orphan && (
-                <span className="ml-1 text-[9px] uppercase tracking-wider text-warn align-middle">
-                  empty
-                </span>
-              )}
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Tree of menus in current project */}
       <div className="overflow-y-auto px-2 py-2 max-h-[40vh]">
         {tree.length === 0 ? (
-          <div className="text-[12px] text-ink-3 italic px-2 py-3">No menus in this project.</div>
+          <div className="text-[12px] text-ink-3 italic px-2 py-3">
+            No menus in this project.
+          </div>
         ) : (
           tree.map(({ menu, depth }) => {
             const filled = menu.items.filter((i) => i !== null && i.command).length;
             const isActive = menu.id === activeMenuId;
+            const isRoot = depth === 0;
             return (
               <div
                 key={menu.id}
                 className={`group flex items-center gap-2 px-2 py-1.5 rounded text-[12px] cursor-pointer border ${
-                  isActive ? 'bg-bg-3 border-accent' : 'bg-bg-2 border-transparent hover:bg-bg-3'
+                  isActive
+                    ? 'bg-bg-3 border-accent'
+                    : 'bg-bg-2 border-transparent hover:bg-bg-3'
                 }`}
                 style={{ paddingLeft: 8 + depth * 14 }}
                 onClick={() => setActiveMenu(menu.id, { source: 'direct' })}
               >
-                {depth > 0 && (
+                {!isRoot && (
                   <span className="text-ink-3 text-[10px] shrink-0" aria-hidden>
                     ↳
                   </span>
                 )}
                 <div className="flex-1 min-w-0">
-                  <div className="text-ink truncate">{menu.name || 'Untitled'}</div>
-                  <div className="text-[10px] text-ink-3 font-mono truncate">{menu.command}</div>
+                  <div
+                    className={`truncate ${isRoot ? 'text-ink font-medium' : 'text-ink'}`}
+                  >
+                    {menu.name || 'Untitled'}
+                  </div>
+                  <div className="text-[10px] text-ink-3 font-mono truncate">
+                    {menu.command}
+                  </div>
                 </div>
                 <span className="font-mono text-[10px] text-ink-2 shrink-0">
                   {filled}/{menu.items.length}
@@ -226,7 +145,11 @@ export default function ProjectsPanel() {
         {pendingDelete && (
           <div className="px-5 py-5 space-y-4">
             <div className="text-[14px] leading-relaxed text-ink">
-              Delete <span className="text-accent">"{pendingDelete.name || 'Untitled'}"</span>?
+              Delete <span className="text-accent">"{pendingDelete.name || 'Untitled'}"</span>
+              {pendingDelete.id === activeRootId && (
+                <span className="text-ink-3"> (the whole project)</span>
+              )}
+              ?
             </div>
             {inboundCount > 0 && (
               <div className="text-[12px] leading-relaxed text-warn bg-warn/10 border border-warn/30 rounded px-3 py-2">
