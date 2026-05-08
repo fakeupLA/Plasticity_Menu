@@ -71,9 +71,25 @@ export default function TopBar() {
 
   return (
     <header className="h-11 shrink-0 flex items-center justify-between px-4 bg-bg-2 border-b border-line">
-      <div className="flex items-center gap-2 text-[13px]">
-        <span className="text-accent text-base leading-none">◐</span>
-        <span className="text-ink">Plasticity Radial Menu Generator</span>
+      <div className="flex items-center gap-2.5 text-[13px] text-ink">
+        <svg
+          width="22"
+          height="18"
+          viewBox="0 0 41 33"
+          fill="currentColor"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-label="Fake-Up logo"
+          className="shrink-0"
+        >
+          <path d="M7.44058 0H0V4.02376L0.00671879 8.5438L12.0487 20.5376H28.0567L7.44058 0Z" />
+          <path d="M25.9748 5.56901H20.5508V8.50173L20.5565 11.7959L29.3322 20.5376H40.9999L25.9748 5.56901Z" />
+          <path d="M9.38492 33H5.08105V30.6726L5.08585 28.0583L12.0504 21.12H21.3089L9.38492 33Z" />
+          <path d="M20.295 28.8462H17.4961V27.3335L17.499 25.6324L22.0284 21.12H28.0513L20.295 28.8462Z" />
+        </svg>
+        <span>
+          <span className="font-semibold">Fake-Up</span>
+          <span className="text-ink-2">: Plasticity Radial Menu Generator</span>
+        </span>
       </div>
       <div className="flex items-center gap-2">
         <input

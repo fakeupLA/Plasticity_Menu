@@ -1,4 +1,4 @@
-# Plasticity Radial Menu Generator
+# Fake-Up: Plasticity Radial Menu Generator
 
 A free, local-first visual editor for designing [Plasticity](https://www.plasticity.xyz) radial (pie) menus and exporting `.radial.json` files that drag-and-drop into Plasticity's viewport.
 
